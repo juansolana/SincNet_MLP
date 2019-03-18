@@ -1,3 +1,30 @@
+
+Skip to content
+
+    Pull requests
+    Issues
+    Marketplace
+    Explore
+
+    @juansolana
+
+1
+0
+
+    1
+
+icewing1996/SincNet_MLP
+Code
+Issues 0
+Pull requests 1
+Projects 0
+Wiki
+Insights
+SincNet_MLP/run.py
+@juansolana juansolana Update run.py 0d87838 5 minutes ago
+@cmw025
+@juansolana
+440 lines (373 sloc) 14.7 KB
 # run.py
 # Chiehmin Wei
 # University of Edinburgh 
@@ -44,7 +71,7 @@ def move_to_cuda(sample):
 				return sample
 
 
-def save_checkpoint(options, save_dir, model, optimizer, epoch, valid_loss):
+def save_checkpoint(options, save_dir, model, optimizer, epoch, valid_loss, mae_loss):
 		os.makedirs(save_dir, exist_ok=True)
 		last_epoch = getattr(save_checkpoint, 'last_epoch', -1)
 		save_checkpoint.last_epoch = max(last_epoch, epoch)
@@ -55,6 +82,7 @@ def save_checkpoint(options, save_dir, model, optimizer, epoch, valid_loss):
 				'epoch': epoch,
 				'val_loss': valid_loss,
 				'best_loss': save_checkpoint.best_loss,
+				'best_mae_loss':mae_loss,
 				'last_epoch': save_checkpoint.last_epoch,
 				'model': model.state_dict(),
 				'optimizer': optimizer.state_dict(),
@@ -393,7 +421,7 @@ for epoch in range(last_epoch + 1, N_epochs):
 
 	model.train()
 	# Save checkpoints
-	save_checkpoint(options, save_dir, model, optimizer, epoch, valid_perplexity)  # lr_scheduler
+	save_checkpoint(options, save_dir, model, optimizer, epoch, valid_perplexity, stats['valid_loss'])  # lr_scheduler
 
 	# Check whether to terminate training
 	if valid_perplexity <= best_validate:
@@ -436,3 +464,18 @@ print(submission.head())
 outfile = '{}_submission.csv'.format(architecture)
 submission.to_csv(outfile)
 print ("Prediction saved as {}".format(outfile))
+
+    © 2019 GitHub, Inc.
+    Terms
+    Privacy
+    Security
+    Status
+    Help
+
+    Contact GitHub
+    Pricing
+    API
+    Training
+    Blog
+    About
+
