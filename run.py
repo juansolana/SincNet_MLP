@@ -1,30 +1,3 @@
-
-Skip to content
-
-    Pull requests
-    Issues
-    Marketplace
-    Explore
-
-    @juansolana
-
-1
-0
-
-    1
-
-icewing1996/SincNet_MLP
-Code
-Issues 0
-Pull requests 1
-Projects 0
-Wiki
-Insights
-SincNet_MLP/run.py
-@juansolana juansolana Update run.py 0d87838 5 minutes ago
-@cmw025
-@juansolana
-440 lines (373 sloc) 14.7 KB
 # run.py
 # Chiehmin Wei
 # University of Edinburgh 
@@ -464,18 +437,3 @@ print(submission.head())
 outfile = '{}_submission.csv'.format(architecture)
 submission.to_csv(outfile)
 print ("Prediction saved as {}".format(outfile))
-
-    © 2019 GitHub, Inc.
-    Terms
-    Privacy
-    Security
-    Status
-    Help
-
-    Contact GitHub
-    Pricing
-    API
-    Training
-    Blog
-    About
-
