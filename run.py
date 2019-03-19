@@ -35,12 +35,28 @@ from adamw import AdamW
 
 import subprocess
 from google.cloud import storage
+from googleapiclient.http import MediaFileUpload
 
 def upload_checkpoint(exp_dir):
 	os.makedirs('Juan/exp/', exist_ok=True)
-	gsutil_cmd = '!gsutil cp /exp/{}/checkpoints/checkpoint_best.pt gs://edinquake/Juan/exp/'.format(exp_dir)
-	p = subprocess.Popen(gsutil_cmd, shell=True, stderr=subprocess.PIPE)
-	output, err = p.communicate()
+# 	gsutil_cmd = '!gsutil cp /exp/{}/checkpoints/checkpoint_best.pt gs://edinquake/Juan/exp/'.format(exp_dir)
+# 	p = subprocess.Popen(gsutil_cmd, shell=True, stderr=subprocess.PIPE)
+# 	output, err = p.communicate()	
+
+	media = MediaFileUpload('/exp/{}/checkpoints/checkpoint_best.pt'.format(exp_dir), 
+				resumable=True)
+
+	request = gcs_service.objects().insert(bucket='edinquake, 
+					       name='checkpoint_best.pt',
+					       media_body=media)
+
+	response = None
+	while response is None:
+	  # _ is a placeholder for a progress object that we ignore.
+	  # (Our file is small, so we skip reporting progress.)
+	  _, response = request.next_chunk()
+
+	print('Upload complete')
 
 def move_to_cuda(sample):
 		if torch.is_tensor(sample):
