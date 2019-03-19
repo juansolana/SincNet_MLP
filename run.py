@@ -43,7 +43,7 @@ def upload_checkpoint(exp_dir):
 # 	p = subprocess.Popen(gsutil_cmd, shell=True, stderr=subprocess.PIPE)
 # 	output, err = p.communicate()	
 
-	media = MediaFileUpload('/exp/{}/checkpoints/checkpoint_best.pt'.format(exp_dir), 
+	media = MediaFileUpload('{}checkpoint_best.pt'.format(exp_dir), 
 				resumable=True)
 
 	request = gcs_service.objects().insert(bucket='edinquake', 
