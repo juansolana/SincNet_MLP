@@ -46,7 +46,7 @@ def upload_checkpoint(exp_dir):
 	media = MediaFileUpload('/exp/{}/checkpoints/checkpoint_best.pt'.format(exp_dir), 
 				resumable=True)
 
-	request = gcs_service.objects().insert(bucket='edinquake, 
+	request = gcs_service.objects().insert(bucket='edinquake', 
 					       name='checkpoint_best.pt',
 					       media_body=media)
 
