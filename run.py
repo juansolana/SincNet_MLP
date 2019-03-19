@@ -44,7 +44,7 @@ def move_to_cuda(sample):
 				return sample
 
 
-def save_checkpoint(options, save_dir, model, optimizer, epoch, valid_loss):
+def save_checkpoint(options, save_dir, model, optimizer, epoch, valid_loss, mae_loss):
 		os.makedirs(save_dir, exist_ok=True)
 		last_epoch = getattr(save_checkpoint, 'last_epoch', -1)
 		save_checkpoint.last_epoch = max(last_epoch, epoch)
@@ -55,6 +55,7 @@ def save_checkpoint(options, save_dir, model, optimizer, epoch, valid_loss):
 				'epoch': epoch,
 				'val_loss': valid_loss,
 				'best_loss': save_checkpoint.best_loss,
+				'best_mae_loss':mae_loss,
 				'last_epoch': save_checkpoint.last_epoch,
 				'model': model.state_dict(),
 				'optimizer': optimizer.state_dict(),
@@ -399,7 +400,7 @@ for epoch in range(last_epoch + 1, N_epochs):
 
 	model.train()
 	# Save checkpoints
-	save_checkpoint(options, save_dir, model, optimizer, epoch, valid_perplexity)  # lr_scheduler
+	save_checkpoint(options, save_dir, model, optimizer, epoch, valid_perplexity, stats['valid_loss'])  # lr_scheduler
 
 	# Check whether to terminate training
 	if valid_perplexity <= best_validate:
