@@ -22,7 +22,6 @@ import numpy as np
 from dnn_models import FunTimesTransformer, FunTimesLSTM, FunTimesCNN, SincNet, ConvNet, EZConv
 
 from dataset import EarthquakeDataset
-from tqdm import tqdm
 
 from data_io import ReadList,read_conf,str_to_bool
 from collections import OrderedDict, defaultdict
@@ -32,6 +31,7 @@ import datetime
 import pandas as pd
 from optparse import OptionParser
 from adamw import AdamW
+import subprocess
 
 def move_to_cuda(sample):
 		if torch.is_tensor(sample):
@@ -61,12 +61,17 @@ def save_checkpoint(options, save_dir, model, optimizer, epoch, valid_loss):
 				'options': options,
 		}
 		if valid_loss < prev_best:
-				torch.save(state_dict, os.path.join(save_dir, 'checkpoint_best.pt'))
+				save_path = os.path.join(save_dir, 'checkpoint_best.pt')
+				torch.save(state_dict, save_path)
+				subprocess.call(['gsutil', 'cp', save_path, 'gs://edinquake/MLP/{}'.format(save_path)])
 		if last_epoch < epoch:
-				torch.save(state_dict, os.path.join(save_dir, 'checkpoint_last.pt'))
+			save_path = os.path.join(save_dir, 'checkpoint_last.pt')
+				torch.save(state_dict, save_path)
+				subprocess.call(['gsutil', 'cp', save_path, 'gs://edinquake/MLP/{}'.format(save_path)])
 
 def load_checkpoint(save_dir, restore_file, model, optimizer):
 		checkpoint_path = os.path.join(save_dir, restore_file)
+		subprocess.call(['gsutil', 'cp', 'gs://edinquake/MLP/{}'.format(save_path), checkpoint_path])
 		if os.path.isfile(checkpoint_path):
 				state_dict = torch.load(checkpoint_path, map_location=lambda s, l: default_restore_location(s, 'cpu'))
 				model.load_state_dict(state_dict['model'])
@@ -309,6 +314,7 @@ else:
 	raise Exception('Optimizer once be one of: AMSGrad, AdamW, Adam, RMSProp')
 
 # Load last checkpoint if one exists
+subprocess.call(['gsutil', 'cp', ''])
 state_dict = None
 state_dict = load_checkpoint(save_dir, restore_file, model, optimizer)
 last_epoch = state_dict['last_epoch'] if state_dict is not None else -1
