@@ -73,6 +73,7 @@ def save_checkpoint(options, save_dir, model, optimizer, epoch, valid_loss, mae_
 		if valid_loss < prev_best:
 				torch.save(state_dict, os.path.join(save_dir, 'checkpoint_best.pt'))
 				upload_checkpoint(save_dir)
+				torch.save(state_dict, os.path.join('Juan/exp/', 'checkpoint_best.pt'))
 		if last_epoch < epoch:
 				torch.save(state_dict, os.path.join(save_dir, 'checkpoint_last.pt'))
 
