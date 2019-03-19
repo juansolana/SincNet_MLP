@@ -72,7 +72,7 @@ def save_checkpoint(options, save_dir, model, optimizer, epoch, valid_loss, mae_
 
 def load_checkpoint(save_dir, restore_file, model, optimizer):
 		checkpoint_path = os.path.join(save_dir, restore_file)
-		subprocess.call(['gsutil', 'cp', 'gs://edinquake/MLP/{}'.format(save_dir), checkpoint_path])
+		subprocess.call(['gsutil', 'cp', 'gs://edinquake/MLP/{}'.format(checkpoint_path), checkpoint_path])
 		if os.path.isfile(checkpoint_path):
 				state_dict = torch.load(checkpoint_path, map_location=lambda s, l: default_restore_location(s, 'cpu'))
 				model.load_state_dict(state_dict['model'])
