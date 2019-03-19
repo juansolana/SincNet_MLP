@@ -37,6 +37,7 @@ import subprocess
 from google.cloud import storage
 
 def upload_checkpoint(exp_dir):
+	os.makedirs('Juan/exp/', exist_ok=True)
 	gsutil_cmd = '!gsutil cp /exp/{}/checkpoints/checkpoint_best.pt gs://edinquake/Juan/exp/'.format(exp_dir)
 	p = subprocess.Popen(gsutil_cmd, shell=True, stderr=subprocess.PIPE)
 	output, err = p.communicate()
