@@ -36,8 +36,11 @@ from adamw import AdamW
 import subprocess
 from google.cloud import storage
 from googleapiclient.http import MediaFileUpload
+# Create the service client.
+from googleapiclient.discovery import build
 
 def upload_checkpoint(exp_dir):
+	gcs_service = build('storage', 'v1')
 	os.makedirs('Juan/exp/', exist_ok=True)
 # 	gsutil_cmd = '!gsutil cp /exp/{}/checkpoints/checkpoint_best.pt gs://edinquake/Juan/exp/'.format(exp_dir)
 # 	p = subprocess.Popen(gsutil_cmd, shell=True, stderr=subprocess.PIPE)
