@@ -38,7 +38,7 @@ from google.cloud import storage
 
 def upload_checkpoint(exp_dir):
 	gsutil_cmd = '!gsutil cp /exp/{}/checkpoints/checkpoint_best.pt gs://edinquake/exp/{}'.format(exp_dir, exp_dir)
-	p = subprocess.Popen(cmd_gsutil, shell=True, stderr=subprocess.PIPE)
+	p = subprocess.Popen(gsutil_cmd, shell=True, stderr=subprocess.PIPE)
 	output, err = p.communicate()
 
 def move_to_cuda(sample):
