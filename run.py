@@ -66,7 +66,7 @@ def save_checkpoint(options, save_dir, model, optimizer, epoch, valid_loss, mae_
 				torch.save(state_dict, save_path)
 				subprocess.call(['gsutil', 'cp', save_path, 'gs://edinquake/MLP/{}'.format(save_path)])
 		if last_epoch < epoch:
-			save_path = os.path.join(save_dir, 'checkpoint_last.pt')
+				save_path = os.path.join(save_dir, 'checkpoint_last.pt')
 				torch.save(state_dict, save_path)
 				subprocess.call(['gsutil', 'cp', save_path, 'gs://edinquake/MLP/{}'.format(save_path)])
 
