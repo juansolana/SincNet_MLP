@@ -33,6 +33,14 @@ import pandas as pd
 from optparse import OptionParser
 from adamw import AdamW
 
+import subprocess
+from google.cloud import storage
+
+def upload_checkpoint(exp_dir):
+	gsutil_cmd = '!gsutil cp /exp/{}/checkpoints/checkpoint_best.pt gs://edinquake/exp/{}'.format(exp_dir, exp_dir)
+	p = subprocess.Popen(cmd_gsutil, shell=True, stderr=subprocess.PIPE)
+	output, err = p.communicate()
+
 def move_to_cuda(sample):
 		if torch.is_tensor(sample):
 				return sample.cuda()
@@ -63,6 +71,7 @@ def save_checkpoint(options, save_dir, model, optimizer, epoch, valid_loss, mae_
 		}
 		if valid_loss < prev_best:
 				torch.save(state_dict, os.path.join(save_dir, 'checkpoint_best.pt'))
+				upload_checkpoint(save_dir)
 		if last_epoch < epoch:
 				torch.save(state_dict, os.path.join(save_dir, 'checkpoint_last.pt'))
 
