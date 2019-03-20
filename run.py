@@ -22,7 +22,6 @@ import numpy as np
 from dnn_models import FunTimesTransformer, FunTimesLSTM, FunTimesCNN, SincNet, ConvNet, EZConv
 
 from dataset import EarthquakeDataset
-from tqdm import tqdm
 
 from data_io import ReadList,read_conf,str_to_bool
 from collections import OrderedDict, defaultdict
@@ -32,34 +31,7 @@ import datetime
 import pandas as pd
 from optparse import OptionParser
 from adamw import AdamW
-
 import subprocess
-from google.cloud import storage
-from googleapiclient.http import MediaFileUpload
-# Create the service client.
-from googleapiclient.discovery import build
-
-def upload_checkpoint(exp_dir):
-	gcs_service = build('storage', 'v1')
-	os.makedirs('Juan/exp/', exist_ok=True)
-# 	gsutil_cmd = '!gsutil cp /exp/{}/checkpoints/checkpoint_best.pt gs://edinquake/Juan/exp/'.format(exp_dir)
-# 	p = subprocess.Popen(gsutil_cmd, shell=True, stderr=subprocess.PIPE)
-# 	output, err = p.communicate()	
-
-	media = MediaFileUpload('{}checkpoint_best.pt'.format(exp_dir), 
-				resumable=True)
-
-	request = gcs_service.objects().insert(bucket='edinquake', 
-					       name='checkpoint_best.pt',
-					       media_body=media)
-
-	response = None
-	while response is None:
-	  # _ is a placeholder for a progress object that we ignore.
-	  # (Our file is small, so we skip reporting progress.)
-	  _, response = request.next_chunk()
-
-	print('Upload complete')
 
 def move_to_cuda(sample):
 		if torch.is_tensor(sample):
@@ -90,14 +62,17 @@ def save_checkpoint(options, save_dir, model, optimizer, epoch, valid_loss, mae_
 				'options': options,
 		}
 		if valid_loss < prev_best:
-				torch.save(state_dict, os.path.join(save_dir, 'checkpoint_best.pt'))
-				upload_checkpoint(save_dir)
-				torch.save(state_dict, os.path.join('Juan/exp/', 'checkpoint_best.pt'))
+				save_path = os.path.join(save_dir, 'checkpoint_best.pt')
+				torch.save(state_dict, save_path)
+				subprocess.call(['gsutil', 'cp', save_path, 'gs://edinquake/MLP/{}'.format(save_path)])
 		if last_epoch < epoch:
-				torch.save(state_dict, os.path.join(save_dir, 'checkpoint_last.pt'))
+				save_path = os.path.join(save_dir, 'checkpoint_last.pt')
+				torch.save(state_dict, save_path)
+				subprocess.call(['gsutil', 'cp', save_path, 'gs://edinquake/MLP/{}'.format(save_path)])
 
 def load_checkpoint(save_dir, restore_file, model, optimizer):
 		checkpoint_path = os.path.join(save_dir, restore_file)
+		subprocess.call(['gsutil', 'cp', 'gs://edinquake/MLP/{}'.format(checkpoint_path), checkpoint_path])
 		if os.path.isfile(checkpoint_path):
 				state_dict = torch.load(checkpoint_path, map_location=lambda s, l: default_restore_location(s, 'cpu'))
 				model.load_state_dict(state_dict['model'])
@@ -105,6 +80,7 @@ def load_checkpoint(save_dir, restore_file, model, optimizer):
 				save_checkpoint.best_loss = state_dict['best_loss']
 				save_checkpoint.last_epoch = state_dict['last_epoch']
 				print('Loaded checkpoint {}'.format(checkpoint_path))
+				print('Best MAE Loss {}'.format(state_dict['best_mae_loss'])
 				return state_dict
 
 
@@ -340,6 +316,7 @@ else:
 	raise Exception('Optimizer once be one of: AMSGrad, AdamW, Adam, RMSProp')
 
 # Load last checkpoint if one exists
+subprocess.call(['gsutil', 'cp', ''])
 state_dict = None
 state_dict = load_checkpoint(save_dir, restore_file, model, optimizer)
 last_epoch = state_dict['last_epoch'] if state_dict is not None else -1
