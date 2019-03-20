@@ -81,6 +81,7 @@ def load_checkpoint(save_dir, restore_file, model, optimizer):
 				save_checkpoint.last_epoch = state_dict['last_epoch']
 				print('Loaded checkpoint {}'.format(checkpoint_path))
 				print('Best MAE Loss {}'.format(state_dict['best_mae_loss']))
+				print('Best Loss {}'.format(state_dict['best_loss']))
 				return state_dict
 
 
