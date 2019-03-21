@@ -51,7 +51,7 @@ def save_checkpoint(options, save_dir, model, optimizer, epoch, valid_loss, mae_
 		prev_best = getattr(save_checkpoint, 'best_loss', float('inf'))
 		save_checkpoint.best_loss = min(prev_best, valid_loss)
 		prev_mae = getattr(save_checkpoint, 'best_mae_loss', float('inf'))
-		sabe_checkpoint.best_mae = min(prev_mae, mae_loss)
+		save_checkpoint.best_mae = min(prev_mae, mae_loss)
 
 		state_dict = {
 				'epoch': epoch,
