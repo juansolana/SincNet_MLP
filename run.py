@@ -52,6 +52,8 @@ def save_checkpoint(options, save_dir, model, optimizer, epoch, valid_loss, mae_
 		save_checkpoint.best_loss = min(prev_best, valid_loss)
 		prev_mae = getattr(save_checkpoint, 'best_mae_loss', float('inf'))
 		save_checkpoint.best_mae = min(prev_mae, mae_loss)
+		prev_best = getattr(save_checkpoint, 'best_epoch', float('inf'))
+		save_checkpoint.best_epoch = min(best_epoch, epoch)
 
 		state_dict = {
 				'epoch': epoch,
@@ -59,6 +61,7 @@ def save_checkpoint(options, save_dir, model, optimizer, epoch, valid_loss, mae_
 				'best_loss': save_checkpoint.best_loss,
 				'best_mae_loss':save_checkpoint.best_mae,
 				'last_epoch': save_checkpoint.last_epoch,
+				'best_epoch': save_checkpoint.best_epoch,
 				'model': model.state_dict(),
 				'optimizer': optimizer.state_dict(),
 				'options': options,
@@ -83,6 +86,7 @@ def load_checkpoint(save_dir, restore_file, model, optimizer):
 				save_checkpoint.last_epoch = state_dict['last_epoch']
 				print('Loaded checkpoint {}'.format(checkpoint_path))
 				print('Last Epoch {}'.format(state_dict['last_epoch']))
+				print('Best Epoch {}'.format(state_dict['best_epoch']))
 				print('Best MAE Loss {}'.format(state_dict['best_mae_loss']))
 				print('Best Loss {}'.format(state_dict['best_loss']))
 				return state_dict
@@ -328,6 +332,7 @@ last_epoch = state_dict['last_epoch'] if state_dict is not None else -1
 # Track validation performance for early stopping
 bad_epochs = 0
 best_validate = float('inf')
+best_mae_loss = float('inf')
 
 train_dataset = EarthquakeDataset(train_src_dir, train_tgt_dir)
 dev_dataset = EarthquakeDataset(dev_src_dir, dev_tgt_dir)
@@ -410,12 +415,15 @@ for epoch in range(last_epoch + 1, N_epochs):
 	# Check whether to terminate training
 	if valid_perplexity <= best_validate:
 			best_validate = valid_perplexity
+			best_mae_loss = stats['valid_loss']
+
 			bad_epochs = 0
 	else:
 			bad_epochs += 1
-	if bad_epochs >= patience:
+	if bad_epochs >= patience or save_checkpoint.last_epoch - save_checkpoint.best_epoch >= patience:
 			print('No validation set improvements observed for {:d} epochs. Early stop!'.format(patience))
 			print('Best perplexity is {}'.format(best_validate))
+			print('Best MAE is {}'.format(best_mae_loss))
 			break
 
 
