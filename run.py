@@ -19,6 +19,7 @@ from torch.autograd import Variable
 import sys
 from tqdm import tqdm
 import numpy as np
+from sklearn import preprocessing
 from dnn_models import FunTimesTransformer, FunTimesLSTM, FunTimesCNN, SincNet, ConvNet, EZConv
 
 from dataset import EarthquakeDataset
@@ -359,6 +360,7 @@ for epoch in range(last_epoch + 1, N_epochs):
 
 			signals = sample['signals']
 			#signals = sample['signals'].unsqueeze(-1)
+			signals = preprocessing.scale(signals)
 			output = model(signals)
 			loss = cost(output, sample['target'])
 
@@ -395,6 +397,7 @@ for epoch in range(last_epoch + 1, N_epochs):
 					# Compute loss
 					#signals = sample['signals'].unsqueeze(-1)
 					signals = sample['signals']
+					signals = preprocessing.scale(signals)
 					output = model(signals)
 					loss = cost(output, sample['target'])
 			# Update tracked statistics
@@ -447,6 +450,7 @@ for i, sample in enumerate(tqdm(test_loader)):
 		with torch.no_grad():
 				#signals = sample['signals'].unsqueeze(-1)
 				signals = sample['signals']
+				signals = preprocessing.scale(signals)
 				output = model(signals).cpu().numpy()
 		for ii, j in enumerate(range(i * batch_size, (i + 1) * batch_size)):
 			submission.time_to_failure[j] = output[ii][-1]
