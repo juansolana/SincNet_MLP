@@ -714,6 +714,7 @@ def make_positions(tensor, padding_idx, left_pad):
 	Padding symbols are ignored, but it is necessary to specify whether padding
 	is added on the left side (left_pad=True) or right side (left_pad=False).
 	"""
+	print ('Tensor Size in make_positions', tensor.size())
 	max_pos = padding_idx + 1 + tensor.size(1)
 	if not hasattr(make_positions, 'range_buf'):
 		make_positions.range_buf = tensor.new()
@@ -722,6 +723,7 @@ def make_positions(tensor, padding_idx, left_pad):
 		torch.arange(padding_idx + 1, max_pos, out=make_positions.range_buf)
 	mask = tensor.ne(padding_idx)
 	positions = make_positions.range_buf[:tensor.size(1)].expand_as(tensor)
+	print ('positions in make_positions', positions)
 	if left_pad:
 		positions = positions - mask.size(1) + mask.long().sum(dim=1).unsqueeze(1)
 	return tensor.clone().masked_scatter_(mask, positions[mask])
@@ -738,6 +740,7 @@ class LearnedPositionalEmbedding(nn.Embedding):
 
 	def forward(self, input, incremental_state=None):
 		"""Input is expected to be of size [bsz x seqlen]."""
+		print ('Input Size in forward prop of LearnedPositionalEmbedding', input.size())
 		if incremental_state is not None:
 			# positions is the same for every token when decoding a single step
 			positions = input.data.new(1, 1).fill_(self.padding_idx + input.size(1))
@@ -826,6 +829,7 @@ class LayerNormalization(nn.Module):
 			self.beta = nn.Parameter(torch.zeros(hidden_size))
 
 	def forward(self, x):
+		print ('X size in forward prop of LayerNormalization', x.size())
 		mean = x.mean(-1, keepdim=True)
 		std = x.std(-1, keepdim=True)
 		return self.gamma * (x - mean) / (std + self.eps) + self.beta
@@ -856,6 +860,7 @@ def split_heads(x, num_heads):
 	Returns:
 		y: [[batch_size, length, depth / num_heads] x heads]
 	"""
+	print ('X size in split_heads', x.size())
 	sz = x.size()
 	# x -> [batch_size, length, heads, depth / num_heads]
 	x = x.view(sz[0], sz[1], num_heads, sz[2] // num_heads)
@@ -960,6 +965,7 @@ class MultiheadAttention(nn.Module):
 			x.append(y)
 		x = combine_heads(x)
 		x = self.output_perform(x)
+		print ('x in forward prop of MultiHead Attention', x.size())
 		if to_weights:
 			return x, avg_attn_scores / self.num_heads
 		else:
@@ -1034,6 +1040,7 @@ class TransformerEncoder(nn.Module):
 				encoder_input += self.embed_positions(src_tokens.type(torch.LongTensor))
 
 		x = F.dropout(encoder_input, p=self.dropout, training=self.training)
+		print ('X size in forward prop of TransformerEncoder', x.size())
 		for self_attention, ffn, norm1, norm2 in zip(self.self_attention_blocks,
 													 self.ffn_blocks,
 													 self.norm1_blocks,
@@ -1121,6 +1128,7 @@ class FunTimesTransformer(nn.Module):
 			x = self.embed_dim_projection(x)
 		x = self.transformer(x)
 		x = self.result_projection(x)
+		print ('X size in forward prop of FunTimesTransformer', x.size())
 		return x.squeeze(-1)
 
 
