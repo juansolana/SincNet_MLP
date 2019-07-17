@@ -221,6 +221,7 @@ if architecture == 'Transformer_features':
 		tr_embed_dim, tr_max_positions, tr_pos, tr_num_layers,
 		tr_num_heads, tr_filter_size, tr_hidden_size, tr_dropout, 
 		tr_attention_dropout, tr_relu_dropout, cuda)
+	print (model)
 
 elif architecture == 'LSTM_raw':
 	MLP_after = {'input_dim': lstm_hidden_size + lstm_hidden_size * lstm_bidirectional,
