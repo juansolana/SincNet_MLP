@@ -14,10 +14,14 @@ class EarthquakeDataset(Dataset):
             self.targets = pickle.load(f)
 
     def __getitem__(self, index):
+        signals = torch.FloatTensor(self.signals[index])
+        target = torch.FloatTensor([self.targets[index]])
+        print ('signals size',signals.size())
+        print ('targets size', target.size())
         return {
             'id': index,
-            'signals': torch.FloatTensor(self.signals[index]),
-            'target': torch.FloatTensor([self.targets[index]]),
+            'signals': signals,
+            'target': target,
         } 
 
     def __len__(self):
